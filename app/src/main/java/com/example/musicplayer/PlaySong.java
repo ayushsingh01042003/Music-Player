@@ -55,7 +55,7 @@ public class PlaySong extends AppCompatActivity {
         mediaPlayer = MediaPlayer.create(this, uri);
         mediaPlayer.start();
         seekBar.setMax(mediaPlayer.getDuration());
-
+//
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

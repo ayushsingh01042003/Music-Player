@@ -30,11 +30,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         listView = findViewById(R.id.listView);
+//      Asking for permission
         Dexter.withContext(this).withPermission(Manifest.permission.READ_EXTERNAL_STORAGE).withListener(new PermissionListener() {
             @Override
             public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
 
 //                Toast.makeText(MainActivity.this, "Runtime permission given", Toast.LENGTH_SHORT).show();
+
+//                Displaying the songs on the listview
                 ArrayList<File> mySongs = fetchSongs(Environment.getExternalStorageDirectory());
                 String [] items = new String[mySongs.size()];
                 for(int i = 0;i<mySongs.size();i++){
@@ -42,11 +45,12 @@ public class MainActivity extends AppCompatActivity {
                 }
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, items);
                 listView.setAdapter(adapter);
+
+//                Displaying the particular song on next activity
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                         Intent intent = new Intent(MainActivity.this, PlaySong.class);
-
                         String currentSong = listView.getItemAtPosition(position).toString();
                         intent.putExtra("songList", mySongs);
                         intent.putExtra("currentSong", currentSong);
@@ -62,13 +66,14 @@ public class MainActivity extends AppCompatActivity {
             public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
 
             }
-
+//            Asking for the permission again until granted
             @Override
             public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
                 permissionToken.continuePermissionRequest();
             }
         }).check();
     }
+//    Accessing the songs from the storage directory
     public ArrayList<File> fetchSongs(File file){
         ArrayList arrayList = new ArrayList();
         File [] songs = file.listFiles();
