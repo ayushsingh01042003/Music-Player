@@ -6,12 +6,15 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -24,12 +27,26 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     ListView listView;
-
+    Button logoutBtn;
+    FirebaseAuth auth;
+    private boolean doubleBackToExitPressedOnce = false; // Flag to track double back press
+    private static final int DOUBLE_BACK_PRESS_INTERVAL = 2000; // Time interval in milliseconds
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         listView = findViewById(R.id.listView);
+
+        logoutBtn = findViewById(R.id.logoutBtn);
+        auth = FirebaseAuth.getInstance();
+
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logout();
+            }
+        });
+
 //      Asking for permission
         Dexter.withContext(this).withPermission(Manifest.permission.READ_EXTERNAL_STORAGE).withListener(new PermissionListener() {
             @Override
@@ -73,6 +90,33 @@ public class MainActivity extends AppCompatActivity {
             }
         }).check();
     }
+
+    private void logout() {
+        auth.signOut();
+        Intent intent = new Intent(MainActivity.this, SignUp.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            finishAffinity(); // Exit the app
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Press again to exit", Toast.LENGTH_SHORT).show();
+
+        // Reset the flag after a certain time interval
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, DOUBLE_BACK_PRESS_INTERVAL);
+    }
+
 //    Accessing the songs from the storage directory
     public ArrayList<File> fetchSongs(File file){
         ArrayList arrayList = new ArrayList();
